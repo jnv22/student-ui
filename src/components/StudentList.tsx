@@ -8,7 +8,7 @@ import {
   faInfoCircle,
 } from "@fortawesome/free-solid-svg-icons";
 
-import { Grid, Flex, Text, Badge, Button } from "theme-ui";
+import { Flex, Text, Button } from "theme-ui";
 import unionBy from "lodash/unionBy";
 import orderBy from "lodash/orderBy";
 
