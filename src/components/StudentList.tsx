@@ -8,7 +8,7 @@ import {
   faInfoCircle,
 } from "@fortawesome/free-solid-svg-icons";
 
-import { Flex, Text, Button } from "theme-ui";
+import { Flex, Text, Button, Input } from "theme-ui";
 import unionBy from "lodash/unionBy";
 import orderBy from "lodash/orderBy";
 
@@ -52,7 +52,13 @@ const StudentList: React.FC<StudentListProps> = ({ data: { students } }) => {
     }
   };
 
-  const [studentData, setStudentData] = useState<Students[] | null>(null);
+  const [studentDataStore, setStudentDataStore] = useState<Students[] | null>(
+    null
+  );
+  const [displayedStudentData, setDisplayedStudentData] = useState<
+    Students[] | null
+  >(null);
+
   const [isAddingStudent, setIsAddingStudent] = useState(false);
 
   const [selectedStudentId, setSelectedStudentId] = useState<number | null>(
@@ -64,25 +70,30 @@ const StudentList: React.FC<StudentListProps> = ({ data: { students } }) => {
     {}
   );
 
+  const setStudentData = (students: Students[]) => {
+    setStudentDataStore(students);
+    setDisplayedStudentData(students);
+  };
+
   useEffect(() => {
     setStudentData(students);
   }, [students]);
 
   useEffect(() => {
-    if (studentData) {
-      studentData.forEach(({ id }) =>
+    if (studentDataStore) {
+      studentDataStore.forEach(({ id }) =>
         dispatchSetCheckedItems({ type: "create", payload: id })
       );
     }
-  }, [studentData]);
+  }, [studentDataStore]);
 
   const submitStudent = (values: StudentFormValues, id?: number) => {
-    let updatedState = [...studentData];
+    let updatedState = [...studentDataStore];
     //adding new student
     if (!id) {
       const generateStudentId =
-        studentData && studentData.length
-          ? studentData[studentData.length - 1].id + 1
+        studentDataStore && studentDataStore.length
+          ? studentDataStore[studentDataStore.length - 1].id + 1
           : 1;
       updatedState = [
         ...updatedState,
@@ -93,7 +104,7 @@ const StudentList: React.FC<StudentListProps> = ({ data: { students } }) => {
     else {
       const unorderedState = unionBy(
         [{ id: Number(id), ...values }],
-        studentData,
+        studentDataStore,
         "id"
       );
       updatedState = orderBy(unorderedState, "id", "asc");
@@ -107,15 +118,17 @@ const StudentList: React.FC<StudentListProps> = ({ data: { students } }) => {
     <div>
       <Button
         onClick={() => {
-          let filteredStudentData = studentData;
-          for (const checkedItem in checkedItems) {
-            if (checkedItems[checkedItem] && filteredStudentData) {
-              filteredStudentData = filteredStudentData.filter(
-                ({ id }) => Number(checkedItem) !== id
-              );
+          if (studentDataStore) {
+            let filteredStudentData = studentDataStore;
+            for (const checkedItem in checkedItems) {
+              if (checkedItems[checkedItem] && filteredStudentData) {
+                filteredStudentData = filteredStudentData.filter(
+                  ({ id }) => Number(checkedItem) !== id
+                );
+              }
             }
+            setStudentData(filteredStudentData);
           }
-          setStudentData(filteredStudentData);
         }}
         sx={{
           width: "30px",
@@ -145,13 +158,27 @@ const StudentList: React.FC<StudentListProps> = ({ data: { students } }) => {
           }}
         />
       )}
+      <Input
+        placeholder="Search..."
+        onChange={(e) => {
+          if (studentDataStore) {
+            const searchValue = e.target.value.toUpperCase();
+            const filteredData = studentDataStore.filter(
+              ({ firstName = "", lastName = "" }) =>
+                firstName.toUpperCase().includes(searchValue) ||
+                lastName.toUpperCase().includes(searchValue)
+            );
+            setDisplayedStudentData(filteredData);
+          }
+        }}
+      />
       <ul
         sx={{
           padding: 0,
         }}
       >
-        {studentData &&
-          studentData.map(({ id, ...student }) => {
+        {displayedStudentData &&
+          displayedStudentData.map(({ id, ...student }) => {
             const { firstName, lastName } = student;
             return (
               <li
@@ -199,7 +226,7 @@ const StudentList: React.FC<StudentListProps> = ({ data: { students } }) => {
                       </Button>
                       <Button
                         onClick={() => {
-                          const filteredData = studentData.filter(
+                          const filteredData = displayedStudentData.filter(
                             (student) => student.id !== id
                           );
                           setStudentData(filteredData);
