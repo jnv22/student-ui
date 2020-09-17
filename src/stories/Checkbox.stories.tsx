@@ -13,6 +13,5 @@ const Template: Story<CheckboxProps> = (args) => <Checkbox {...args} />;
 
 export const Default = Template.bind({});
 Default.args = {
-  checked: true,
   onChange: () => null,
 };

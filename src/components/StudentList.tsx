@@ -173,7 +173,6 @@ const StudentList: React.FC<StudentListProps> = ({ data: { students } }) => {
                     }}
                   >
                     <Checkbox
-                      checked={checkedItems[id]}
                       onChange={() =>
                         dispatchSetCheckedItems({ type: "toggle", payload: id })
                       }
