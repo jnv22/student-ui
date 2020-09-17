@@ -166,7 +166,8 @@ const StudentList: React.FC<StudentListProps> = ({ data: { students } }) => {
             const filteredData = studentDataStore.filter(
               ({ firstName = "", lastName = "" }) =>
                 firstName.toUpperCase().includes(searchValue) ||
-                lastName.toUpperCase().includes(searchValue)
+                lastName.toUpperCase().includes(searchValue) ||
+                `${firstName} ${lastName}`.toUpperCase().includes(searchValue)
             );
             setDisplayedStudentData(filteredData);
           }
